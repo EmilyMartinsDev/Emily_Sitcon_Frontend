@@ -60,3 +60,43 @@ export const Pesquisar = styled.div`
   border-radius: 12px;
   background-color: #fff;
 `;
+export const ControlePagina = styled.div`
+  max-width: 384px;
+  height: 62px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 60px;
+  border-radius: 12px;
+  background-color: #fff;
+  button {
+    background: transparent;
+    border: none;
+    svg {
+      cursor: pointer;
+    }
+  }
+`;
+
+type NumeroPagina = {
+  pageAtual?: number;
+  pageNumber?: number;
+};
+
+export const NumeroPagina = styled.span<NumeroPagina>`
+  font-weight: bold;
+  font-size: 18px;
+
+  background-color: ${(props) =>
+    props.pageAtual === props.pageNumber ? cores.azulEscuro : "#fff"};
+  color: ${(props) =>
+    props.pageAtual === props.pageNumber ? cores.branco : "#c4c4c4"};
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+`;

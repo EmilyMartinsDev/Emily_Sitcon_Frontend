@@ -1,8 +1,16 @@
 import { useState } from "react";
 import Listapaciente from "../../components/ListaPaciente";
-import { Encasulador, Cabecalho, Input, Pesquisar } from "./style";
+import {
+  Encasulador,
+  Cabecalho,
+  Input,
+  Pesquisar,
+  ControlePagina,
+  NumeroPagina,
+} from "./style";
 import { FaSistrix } from "react-icons/fa";
-import { UseSelector } from "react-redux/es/hooks/useSelector";
+import { FaAngleLeft } from "react-icons/fa";
+import { FaAngleRight } from "react-icons/fa";
 import { useListarPacientesQuery } from "../../services/api";
 const clientes = [
   {
@@ -138,11 +146,54 @@ export const Clientes = () => {
           />
         ))}
       </Encasulador>
-      <div>
-        <button onClick={() => handlePageChange(page - 1)}>Anterior</button>
-        <span>Página {page}</span>
-        <button onClick={() => handlePageChange(page + 1)}>Próxima</button>
-      </div>
+      <ControlePagina>
+        <button onClick={() => handlePageChange(page - 1)}>
+          <FaAngleLeft size={30} color="#c4c4c4" />
+        </button>
+        {page <= 3 && (
+          <>
+            <NumeroPagina pageAtual={page} pageNumber={1}>
+              1
+            </NumeroPagina>
+            <NumeroPagina pageAtual={page} pageNumber={2}>
+              2
+            </NumeroPagina>
+            <NumeroPagina pageAtual={page} pageNumber={3}>
+              3
+            </NumeroPagina>
+          </>
+        )}
+        {page > 3 ? (
+          <>
+            <NumeroPagina pageAtual={page} pageNumber={4}>
+              4
+            </NumeroPagina>
+            <NumeroPagina pageAtual={page} pageNumber={5}>
+              5
+            </NumeroPagina>
+            <NumeroPagina pageAtual={page} pageNumber={6}>
+              6
+            </NumeroPagina>
+            <NumeroPagina pageAtual={page} pageNumber={7}>
+              7
+            </NumeroPagina>
+            <NumeroPagina pageAtual={page} pageNumber={8}>
+              8
+            </NumeroPagina>
+            <NumeroPagina pageAtual={page} pageNumber={9}>
+              9
+            </NumeroPagina>
+          </>
+        ) : (
+          <NumeroPagina pageAtual={0}>...</NumeroPagina>
+        )}
+        <NumeroPagina pageAtual={page} pageNumber={10}>
+          10
+        </NumeroPagina>
+        <button onClick={() => handlePageChange(page + 1)}>
+          <FaAngleRight size={30} color="#c4c4c4" />
+        </button>
+      </ControlePagina>
     </div>
   );
 };

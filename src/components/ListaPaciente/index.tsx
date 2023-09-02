@@ -23,7 +23,7 @@ const Listapaciente = ({
         <Texto>{nome}</Texto>
         <Texto>{dataNasc}</Texto>
         <Texto>{CPF}</Texto>
-        <LinkItem to={`/solicitação/${id}`}>
+        <LinkItem to={`/solicitacao/${id}`}>
           <Texto>Prosseguir</Texto>
         </LinkItem>
       </Encasulador>
