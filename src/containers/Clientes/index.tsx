@@ -12,6 +12,7 @@ import { FaSistrix } from "react-icons/fa";
 import { FaAngleLeft } from "react-icons/fa";
 import { FaAngleRight } from "react-icons/fa";
 import { useListarPacientesQuery } from "../../services/api";
+import { formatarData } from "../../utils/formartarData";
 const clientes = [
   {
     nome: "emily",
@@ -86,20 +87,6 @@ export const Clientes = () => {
       setPage(newPage);
     }
   }; // Passando parâmetros de paginação
-
-  function formatarData(data: string): string {
-    const dataObj = new Date(data);
-
-    // Extrair componentes da data
-    const ano = dataObj.getFullYear();
-    const mes = (dataObj.getMonth() + 1).toString().padStart(2, "0"); // +1 porque janeiro é 0
-    const dia = dataObj.getDate().toString().padStart(2, "0");
-
-    // Formatar como uma string no formato desejado (exemplo: "16/05/1997 00:00:00")
-    const dataFormatada = `${dia}/${mes}/${ano}`;
-
-    return dataFormatada;
-  }
 
   const Pacientes = () => {
     let filtrados = pacientes;
