@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { string } from "yup";
 type Pacientes = {
   id: number;
   nome: string;
@@ -17,13 +18,34 @@ type Solicitacao = {
   status: string;
 };
 
-type ProfissionalAtende = {
+export type ProfissionalAtende = {
   procedimento: {
     id: number;
     descricao: string;
     tipo_id: number;
     status: string;
   };
+};
+
+type Procedimento = {
+  id: number;
+  descricao: string;
+  tipo_id: number;
+  status: string;
+};
+
+type ListaProcedimento = {
+  profissionalId: string;
+  solicitacaoId: string;
+};
+
+type CadastroConsulta = {
+  paciente_id: number;
+  profissional_id: number;
+  tipoSolicitacao_id: number;
+  procedimentos_ids: number[];
+  data: string;
+  horario: string;
 };
 
 const api = createApi({
@@ -43,10 +65,18 @@ const api = createApi({
     listarSolicitacao: builder.query<Solicitacao[], void>({
       query: () => "/solicitacao",
     }),
-    ListarProfissonalAtende: builder.query<ProfissionalAtende[], void>({
+    ListarProfissionalAtende: builder.query<ProfissionalAtende[], string>({
+      query: (profissional_id) => `/profissionalAtende/${profissional_id}`,
+    }),
+    listarProcedimentos: builder.query<Procedimento[], ListaProcedimento>({
+      query: ({ profissionalId, solicitacaoId }) =>
+        `/procedimentos/${profissionalId}/${solicitacaoId}`,
+    }),
+    consulta: builder.mutation<CadastroConsulta, any>({
       query: (body) => ({
-        url: "/profissionalAtende",
+        url: "/consulta",
         body,
+        method: "POST",
       }),
     }),
   }),
@@ -57,5 +87,7 @@ export const {
   useListarPacienteIDQuery,
   useListarProfissionalQuery,
   useListarSolicitacaoQuery,
-  useListarProfissonalAtendeQuery,
+  useListarProfissionalAtendeQuery,
+  useListarProcedimentosQuery,
+  useConsultaMutation,
 } = api;

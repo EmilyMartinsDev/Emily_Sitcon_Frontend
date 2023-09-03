@@ -1,123 +1,299 @@
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
-import {
-  BtnVoltar,
-  Input,
-  InputGroup,
-  Text,
-  CampoAlerta,
-  InputGroupCadastro,
-  Select,
-  BtnSlavar,
-  GrupFlex,
-} from "./style";
-import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
+import React, { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { FaAngleDown } from "react-icons/fa";
 import {
   useListarPacienteIDQuery,
   useListarProfissionalQuery,
   useListarSolicitacaoQuery,
+  useListarProcedimentosQuery,
+  useConsultaMutation,
 } from "../../services/api";
-import { useParams } from "react-router-dom";
-
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { formatarData } from "../../utils/formartarData";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+
+import {
+  Container,
+  Title,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Select,
+  CheckboxContainer,
+  CheckboxLabel,
+  ButtonContainer,
+  IconContainer,
+  StyledCheckbox,
+  StyledRadio,
+  SubmitButton,
+  BackLink,
+  FormRow,
+  Alert,
+  ClockIcon,
+  CalendarIcon,
+  InputWithIcon,
+} from "./style";
+
 const Solicitacao = () => {
   const { id } = useParams();
-
+  const reverteData = (data: string) => {
+    const [dia, mes, ano] = data.split("-");
+    const novaData = `${ano}-${mes}-${dia}`;
+    return novaData;
+  };
+  const stringToNumber = (array: Array<string>) => {
+    const newL = array.map((v) => parseInt(v));
+    return newL;
+  };
   const { data } = useListarPacienteIDQuery(id!);
-  const { data: Profissonais } = useListarProfissionalQuery();
+  const { data: Profissionais } = useListarProfissionalQuery();
   const { data: solicitacao } = useListarSolicitacaoQuery();
-  if (!data || !Profissonais || !solicitacao) {
+  const [selecaoMultipla, setSelecaoMultipla] = useState(false);
+  const [isCheckboxVisible, setIsCheckboxVisible] = useState(false);
+
+  const [consulta, { isSuccess, isError }] = useConsultaMutation();
+  const form = useFormik({
+    initialValues: {
+      paciente_id: data?.id,
+      profissional_id: "",
+      tipoSolicitacao_id: "",
+      procedimentos_ids: [] as string[],
+      data: "",
+      horario: "",
+    },
+
+    onSubmit: (values) => {
+      console.log("Formulário enviado:", values); // Adicione essa linha
+      consulta({
+        paciente_id: data?.id,
+        profissional_id: parseInt(values.profissional_id),
+        tipoSolicitacao_id: parseInt(values.tipoSolicitacao_id),
+        procedimento_ids: stringToNumber(values.procedimentos_ids),
+        data: reverteData(values.data),
+        horario: values.horario,
+      })
+        .unwrap()
+        .then((response) => {
+          // Manipule a resposta de sucesso aqui
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+  });
+
+  const { data: procedimentos } = useListarProcedimentosQuery({
+    solicitacaoId: form.values.tipoSolicitacao_id,
+    profissionalId: form.values.profissional_id,
+  });
+
+  if (!data || !Profissionais || !solicitacao) {
     return <></>;
   }
+
+  const campoIncorreto = (campo: string) => {
+    const alterado = campo in form.touched;
+    const erro = campo in form.errors;
+
+    return alterado && erro;
+  };
+
+  const toggleCheckboxVisibility = () => {
+    setIsCheckboxVisible(!isCheckboxVisible);
+  };
 
   return (
     <>
       <Header />
       <div className="container">
-        <BtnVoltar to="/">Voltar</BtnVoltar>
-        <form action="">
-          <InputGroup>
-            <div>
-              <Text>Nome do Paciente:</Text>
-              <Input value={data?.nome} type="text" disabled={true} />
-            </div>
-            <div>
-              <Text>Data de Nascimento:</Text>
+        <BackLink to="/">Voltar</BackLink>
+      </div>
+      <Container>
+        <Form onSubmit={form.handleSubmit}>
+          <FormRow>
+            <FormGroup>
+              <Label>Nome do Paciente:</Label>
               <Input
+                name="paciente_id"
+                value={data?.nome}
+                onChange={form.handleChange}
+                className="paciente"
+                type="text"
+                disabled={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label>Data de Nascimento:</Label>
+              <Input
+                className="paciente"
                 value={formatarData(data?.dataNasc)}
                 type="text"
                 disabled={true}
               />
-            </div>
-            <div>
-              <Text>CPF:</Text>
-              <Input value={data?.CPF} type="text" disabled={true} />
-            </div>
-          </InputGroup>
-
-          <CampoAlerta>
-            <span>
-              Atenção! Os Campos com * devem ser preechidos obrigatóriamente.
-            </span>
-          </CampoAlerta>
-          <InputGroupCadastro>
-            <Text>Profisional*</Text>
-            <div>
-              <Select>
-                {Profissonais?.map((p) => (
-                  <option key={p?.id} value={p?.id}>
-                    {p?.nome}
-                  </option>
-                ))}
-              </Select>
-            </div>
-          </InputGroupCadastro>
-          <GrupFlex>
-            <InputGroupCadastro>
-              <Text>Tipo de solicitação*</Text>
-              <Select>
-                {solicitacao?.map((s) => (
-                  <option key={s?.id} value={s.id}>
-                    {s?.descricao}
-                  </option>
-                ))}
-              </Select>
-            </InputGroupCadastro>
-            <InputGroupCadastro>
-              <Text>Procedimentos:*</Text>
-              <Select>
-                <option value="">Profissional 1</option>
-                <option value="">Profissional 1</option>
-                <option value="">Profissional 1</option>
-              </Select>
-            </InputGroupCadastro>
-          </GrupFlex>
-
-          <GrupFlex>
-            <InputGroupCadastro>
-              <Text>Data:*</Text>
-
-              <div className="data">
-                <Input type="text" placeholder="dd-mm-aaaa" />
-                <FaRegCalendarAlt size={30} color="#c4c4c4" />
+            </FormGroup>
+            <FormGroup>
+              <Label>CPF:</Label>
+              <Input
+                className="paciente"
+                value={data?.CPF}
+                type="text"
+                disabled={true}
+              />
+            </FormGroup>
+          </FormRow>
+          <Alert>
+            <span>Atenção!</span> Os Campos com * devem ser preenchidos
+            obrigatoriamente.
+          </Alert>
+          <FormGroup>
+            <Label>Profissional*</Label>
+            <Select
+              name="profissional_id"
+              value={form.values.profissional_id}
+              onChange={form.handleChange}
+              className={campoIncorreto("profissional_id") ? "error" : ""}
+            >
+              {Profissionais?.map((p) => (
+                <option key={p?.id} value={p?.id}>
+                  {p?.nome}
+                </option>
+              ))}
+            </Select>
+          </FormGroup>
+          <FormRow>
+            <FormGroup>
+              <div className="dupla">
+                <Label>Tipo de solicitação*</Label>
+                <Select
+                  name="tipoSolicitacao_id"
+                  value={form.values.tipoSolicitacao_id}
+                  onChange={(e) => {
+                    form.handleChange(e);
+                    const selectedTipoSolicitacao = e.target.value;
+                    setSelecaoMultipla(selectedTipoSolicitacao === "2");
+                  }}
+                  className={
+                    campoIncorreto("tipoSolicitacao_id") ? "error" : ""
+                  }
+                >
+                  {solicitacao?.map((s) => (
+                    <option key={s?.id} value={s.id}>
+                      {s?.descricao}
+                    </option>
+                  ))}
+                </Select>
               </div>
-            </InputGroupCadastro>
-            <InputGroupCadastro>
-              <Text>Hora:*</Text>
-              <div className="data">
-                <Input type="text" />
-                <FaRegClock size={30} color="#c4c4c4" />
+            </FormGroup>
+            <FormGroup>
+              <div className="dupla">
+                <Label>Tipo de procedimento*</Label>
+                <IconContainer onClick={toggleCheckboxVisibility}>
+                  <FaAngleDown color="#c4c4c4" size={36} />
+                </IconContainer>
+                <CheckboxContainer isVisible={isCheckboxVisible}>
+                  {selecaoMultipla ? (
+                    <>
+                      {procedimentos &&
+                      procedimentos.find((p) => p.descricao) ? (
+                        procedimentos.map((p) => (
+                          <div key={p.id}>
+                            <CheckboxLabel>
+                              <StyledCheckbox
+                                type="checkbox"
+                                name="procedimentos_ids"
+                                value={p.id}
+                                onChange={form.handleChange}
+                                checked={form.values.procedimentos_ids.includes(
+                                  p.id.toString(),
+                                )}
+                              />
+                              {p.descricao}
+                            </CheckboxLabel>
+                          </div>
+                        ))
+                      ) : (
+                        <h3>
+                          Preencha os campos de profissional e solicitação
+                        </h3>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {procedimentos &&
+                      procedimentos.find((p) => p.descricao) ? (
+                        procedimentos.map((p) => (
+                          <div key={p.id}>
+                            <label>
+                              <StyledRadio
+                                type="radio"
+                                name="procedimentos_ids"
+                                value={p.id}
+                                onChange={form.handleChange}
+                                checked={
+                                  form.values.procedimentos_ids[0] ===
+                                  p.id.toString()
+                                }
+                              />
+                              {p.descricao}
+                            </label>
+                          </div>
+                        ))
+                      ) : (
+                        <h3>
+                          Preencha os campos de profissional e solicitação
+                        </h3>
+                      )}
+                    </>
+                  )}
+                </CheckboxContainer>
               </div>
-            </InputGroupCadastro>
-          </GrupFlex>
+            </FormGroup>
+          </FormRow>
+          <FormRow className="data">
+            <FormGroup className="dataGroup">
+              <Label>Data:*</Label>
+              <div className="data">
+                <InputWithIcon>
+                  <Input
+                    name="data"
+                    type="text"
+                    placeholder="dd-mm-aaaa"
+                    value={form.values.data}
+                    onChange={form.handleChange}
+                    className={campoIncorreto("data") ? "error" : ""}
+                  />
+                  <CalendarIcon size={30} color="#c4c4c4" />
+                </InputWithIcon>
+              </div>
+            </FormGroup>
+            <FormGroup>
+              <Label>Hora:*</Label>
+              <div className="data">
+                <InputWithIcon>
+                  <Input
+                    name="horario"
+                    type="text"
+                    value={form.values.horario}
+                    onChange={form.handleChange}
+                    className={campoIncorreto("horario") ? "error" : ""}
+                  />
+                  <ClockIcon size={30} color="#c4c4c4" />
+                </InputWithIcon>
+              </div>
+            </FormGroup>
+          </FormRow>
+          <ButtonContainer>
+            <SubmitButton type="submit">Salvar</SubmitButton>
+          </ButtonContainer>
+        </Form>
 
-          <BtnSlavar type="submit">Salvar</BtnSlavar>
-        </form>
-      </div>
-      <Footer />
+        <Footer />
+      </Container>
     </>
   );
 };
+
 export default Solicitacao;
