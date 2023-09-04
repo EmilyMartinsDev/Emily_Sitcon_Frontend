@@ -57,7 +57,7 @@ const Solicitacao = () => {
   const [consulta, { isSuccess, isError }] = useConsultaMutation();
   const form = useFormik({
     initialValues: {
-      paciente_id: data?.id,
+      paciente_id: data?.id || "",
       profissional_id: "",
       tipoSolicitacao_id: "",
       procedimentos_ids: [] as string[],
@@ -67,17 +67,35 @@ const Solicitacao = () => {
 
     onSubmit: (values) => {
       console.log("Formulário enviado:", values); // Adicione essa linha
+      console.log("Procedimentos:", procedimentos);
+
+      // Verifique o valor de values.procedimentos_ids
+      console.log("Procedimentos IDs:", values.procedimentos_ids);
+
+      // Certifique-se de que values.procedimentos_ids seja um array válido e não vazio
+      if (
+        !Array.isArray(values.procedimentos_ids) ||
+        values.procedimentos_ids.length === 0
+      ) {
+        console.log("Procedimentos IDs inválidos.");
+        return;
+      }
+
+      // Verifique se stringToNumber está convertendo as strings corretamente
+      const procedimentoIds = stringToNumber(values.procedimentos_ids);
+      console.log("Procedimento IDs convertidos:", procedimentoIds);
+
       consulta({
         paciente_id: data?.id,
         profissional_id: parseInt(values.profissional_id),
         tipoSolicitacao_id: parseInt(values.tipoSolicitacao_id),
-        procedimento_ids: stringToNumber(values.procedimentos_ids),
+        procedimentos_ids: stringToNumber(values.procedimentos_ids),
         data: reverteData(values.data),
         horario: values.horario,
       })
         .unwrap()
         .then((response) => {
-          // Manipule a resposta de sucesso aqui
+          console.log("Resposta da consulta:", response);
         })
         .catch((error) => {
           console.log(error);
@@ -89,10 +107,23 @@ const Solicitacao = () => {
     solicitacaoId: form.values.tipoSolicitacao_id,
     profissionalId: form.values.profissional_id,
   });
+  // ...
 
-  if (!data || !Profissionais || !solicitacao) {
-    return <></>;
-  }
+  const handleChangeCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    const updatedProcedimentos = [...form.values.procedimentos_ids];
+
+    if (checked) {
+      updatedProcedimentos.push(value);
+    } else {
+      const index = updatedProcedimentos.indexOf(value);
+      if (index !== -1) {
+        updatedProcedimentos.splice(index, 1);
+      }
+    }
+
+    form.setFieldValue("procedimentos_ids", updatedProcedimentos);
+  };
 
   const campoIncorreto = (campo: string) => {
     const alterado = campo in form.touched;
@@ -104,7 +135,9 @@ const Solicitacao = () => {
   const toggleCheckboxVisibility = () => {
     setIsCheckboxVisible(!isCheckboxVisible);
   };
-
+  if (!data || !Profissionais || !solicitacao) {
+    return <></>;
+  }
   return (
     <>
       <Header />
@@ -196,16 +229,15 @@ const Solicitacao = () => {
                 <CheckboxContainer isVisible={isCheckboxVisible}>
                   {selecaoMultipla ? (
                     <>
-                      {procedimentos &&
-                      procedimentos.find((p) => p.descricao) ? (
+                      {procedimentos ? (
                         procedimentos.map((p) => (
                           <div key={p.id}>
                             <CheckboxLabel>
                               <StyledCheckbox
                                 type="checkbox"
                                 name="procedimentos_ids"
-                                value={p.id}
-                                onChange={form.handleChange}
+                                value={p.id.toString()}
+                                onChange={(e) => handleChangeCheckbox(e)} // Usar o manipulador personalizado aqui
                                 checked={form.values.procedimentos_ids.includes(
                                   p.id.toString(),
                                 )}

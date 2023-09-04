@@ -4,7 +4,7 @@ const Header = () => {
   return (
     <HeaderContainer>
       <div className="container">
-        <ListagemSlicitação to="/solicitações">
+        <ListagemSlicitação to="/pacientes">
           Listagem de solicitacao
         </ListagemSlicitação>
       </div>

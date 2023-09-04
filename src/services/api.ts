@@ -27,13 +27,63 @@ export type ProfissionalAtende = {
   };
 };
 
-type Procedimento = {
+export type Consultas = {
+  id: string;
+  data: string;
+  horario: string;
+  paciente: {
+    nome: string;
+    CPF: string;
+  };
+  tipoSolicitacao: {
+    descricao: string;
+  };
+
+  profissional: {
+    nome: string;
+  };
+};
+
+/**
+ * "data": "2024-10-08T03:00:00.000Z",
+		"horario": "14h",
+		"paciente": {
+			"nome": "Nagela Perreira",
+			"CPF": "210.298.293-09"
+		},
+		"tipoSolicitacao": {
+			"descricao": "Exames Laboratoriais"
+		},
+		"procedimentos": [
+			{
+				"descricao": "Hemograma"
+			},
+			{
+				"descricao": "Glicemia"
+			},
+			{
+				"descricao": "Colesterol"
+			}
+		],
+		"profissional": {
+			"nome": "Rafaela Tenorio"
+		}
+ */
+
+export type Procedimento = {
   id: number;
   descricao: string;
   tipo_id: number;
   status: string;
 };
-
+type ProcedimentoConsulta = {
+  procedimento: {
+    id: number;
+    descricao: string;
+    tipo_id: number;
+    status: string;
+  };
+};
 type ListaProcedimento = {
   profissionalId: string;
   solicitacaoId: string;
@@ -79,6 +129,13 @@ const api = createApi({
         method: "POST",
       }),
     }),
+    ListaTodasConsultas: builder.query<Consultas[], void>({
+      query: () => "/consulta",
+    }),
+    ListaProcedimentoConsulta: builder.query<ProcedimentoConsulta[], string>({
+      query: (clinicicaSolicitacao_id) =>
+        `/procedimentos/${clinicicaSolicitacao_id}`,
+    }),
   }),
 });
 export default api;
@@ -89,5 +146,7 @@ export const {
   useListarSolicitacaoQuery,
   useListarProfissionalAtendeQuery,
   useListarProcedimentosQuery,
+  useListaTodasConsultasQuery,
   useConsultaMutation,
+  useListaProcedimentoConsultaQuery,
 } = api;
