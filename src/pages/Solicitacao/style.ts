@@ -91,6 +91,15 @@ export const InputWithIcon = styled.div`
   position: relative;
   width: 30rem;
   display: inline-block;
+
+  input {
+    width: 100%;
+    height: 62px;
+    border: 1px solid ${cores.azulClaro};
+    border-radius: 8px;
+    padding: 8px 36px 8px 8px;
+    font-size: 16px;
+  }
 `;
 export const Input = styled.input`
   width: 100%;

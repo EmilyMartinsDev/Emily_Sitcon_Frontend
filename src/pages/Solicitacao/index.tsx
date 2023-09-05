@@ -13,7 +13,7 @@ import {
 import { formatarData } from "../../utils/formartarData";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-
+import InputMask from "react-input-mask";
 import {
   Container,
   Title,
@@ -289,7 +289,8 @@ const Solicitacao = () => {
               <Label>Data:*</Label>
               <div className="data">
                 <InputWithIcon>
-                  <Input
+                  <InputMask
+                    mask="99-99-9999"
                     name="data"
                     type="text"
                     placeholder="dd-mm-aaaa"
@@ -305,7 +306,8 @@ const Solicitacao = () => {
               <Label>Hora:*</Label>
               <div className="data">
                 <InputWithIcon>
-                  <Input
+                  <InputMask
+                    mask="99:99"
                     name="horario"
                     type="text"
                     value={form.values.horario}
