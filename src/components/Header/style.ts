@@ -10,11 +10,16 @@ export const HeaderContainer = styled.header`
     display: flex;
     justify-content: end;
     align-items: center;
+
+    & > a {
+      margin-right: 16px;
+    }
   }
 `;
 export const ListagemSlicitação = styled(Link)`
   background: transparent;
   border: 1px solid #fff;
+
   display: flex;
   align-items: center;
   justify-content: center;

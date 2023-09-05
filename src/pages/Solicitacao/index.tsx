@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, redirect } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { FaAngleDown } from "react-icons/fa";
@@ -13,6 +13,10 @@ import {
 import { formatarData } from "../../utils/formartarData";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import { useNavigate } from "react-router-dom";
+
+// ...
+
 import InputMask from "react-input-mask";
 import {
   Container,
@@ -53,7 +57,7 @@ const Solicitacao = () => {
   const { data: solicitacao } = useListarSolicitacaoQuery();
   const [selecaoMultipla, setSelecaoMultipla] = useState(false);
   const [isCheckboxVisible, setIsCheckboxVisible] = useState(false);
-
+  const navigate = useNavigate();
   const [consulta, { isSuccess, isError }] = useConsultaMutation();
   const form = useFormik({
     initialValues: {
@@ -66,22 +70,13 @@ const Solicitacao = () => {
     },
 
     onSubmit: (values) => {
-      console.log("Formulário enviado:", values); // Adicione essa linha
-      console.log("Procedimentos:", procedimentos);
-
-      // Verifique o valor de values.procedimentos_ids
-      console.log("Procedimentos IDs:", values.procedimentos_ids);
-
-      // Certifique-se de que values.procedimentos_ids seja um array válido e não vazio
       if (
         !Array.isArray(values.procedimentos_ids) ||
         values.procedimentos_ids.length === 0
       ) {
-        console.log("Procedimentos IDs inválidos.");
         return;
       }
 
-      // Verifique se stringToNumber está convertendo as strings corretamente
       const procedimentoIds = stringToNumber(values.procedimentos_ids);
       console.log("Procedimento IDs convertidos:", procedimentoIds);
 
@@ -96,6 +91,7 @@ const Solicitacao = () => {
         .unwrap()
         .then((response) => {
           console.log("Resposta da consulta:", response);
+          navigate("/pacientes");
         })
         .catch((error) => {
           console.log(error);

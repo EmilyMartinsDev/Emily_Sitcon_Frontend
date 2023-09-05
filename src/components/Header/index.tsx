@@ -5,7 +5,10 @@ const Header = () => {
     <HeaderContainer>
       <div className="container">
         <ListagemSlicitação to="/pacientes">
-          Listagem de solicitacao
+          Solicitações Clínicas
+        </ListagemSlicitação>
+        <ListagemSlicitação to="/pacientes">
+          Listagem de solicitções
         </ListagemSlicitação>
       </div>
     </HeaderContainer>
